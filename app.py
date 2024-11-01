@@ -4,11 +4,16 @@ from shinywidgets import render_plotly, render_widget
 import pandas as pd
 import palmerpenguins
 import seaborn as sns
+from shinyswatch import theme
 
 penguins_df = palmerpenguins.load_penguins()
 
-with ui.sidebar(position="left", open="open"):
-    ui.h2("Sidebar")
+ui.page_opts(
+    title="Jeremy's Penguin Interactive App", fillable=True, theme=theme.cyborg
+)
+
+with ui.sidebar(position="left", open="open", bg="f8f8f8"):
+    ui.h2("Sidebar", style="text-align: center;", bg="#0a0a0a")
     ui.input_selectize(
         "selected_attribute",
         "Attribute",
@@ -32,33 +37,42 @@ with ui.sidebar(position="left", open="open"):
 
 # Main Content
 
-ui.page_opts(title="Jeremy's Penguin Histogram", fillable=False)
+
 with ui.layout_columns():
     with ui.card(full_screen=True):
-        ui.card_header("Data Table")
+        ui.card_header("Data Table", style="text-align: center;")
 
         @render.data_frame
         def penguins_table():
-            return render.DataTable(penguins_df, selection_mode="row", width="300px", height="250px")
+            return render.DataTable(
+                penguins_df, selection_mode="row", width="400px", height="250px"
+            )
 
     with ui.card(full_screen=True):
-        ui.card_header("Data Grid")
+        ui.card_header("Data Grid", style="text-align: center;")
 
         @render.data_frame
         def penguins_grid():
-            return render.DataGrid(penguins_df, filters=False, selection_mode="row", width="300px", height="250px")
+            return render.DataGrid(
+                penguins_df,
+                filters=False,
+                selection_mode="row",
+                width="400px",
+                height="250px",
+            )
 
 
 with ui.layout_columns():
     with ui.card(full_screen=True):
-        ui.card_header("Plotly Histogram")
+        ui.card_header("Plotly Histogram", style="text-align: center;")
 
         @render_widget
         def plot_1():
             histo = px.histogram(
                 penguins_df,
                 x="body_mass_g",
-                nbins=input.plotly_bin_count(),color="species"
+                nbins=input.plotly_bin_count(),
+                color="species",
             ).update_layout(
                 title={"text": "Penguin Mass", "x": 0.5},
                 yaxis_title="Count",
@@ -68,12 +82,16 @@ with ui.layout_columns():
             return histo
 
     with ui.card(full_screen=True):
-        ui.card_header("Seaborn Histogram")
+        ui.card_header("Seaborn Histogram", style="text-align: center;")
 
         @render.plot(alt="A Seaborn histogram on penguin body mass in grams.")
         def plot_2():
             ax = sns.histplot(
-                penguins_df, x="body_mass_g", bins=input.seaborn_bin_count(), hue="species"
+                penguins_df,
+                x="body_mass_g",
+                bins=input.seaborn_bin_count(),
+                hue="species",
+                element="step",
             )
             ax.set_title("Palmer Penguins")
             ax.set_xlabel("Mass (g)")
@@ -83,7 +101,7 @@ with ui.layout_columns():
 
 with ui.layout_columns():
     with ui.card(full_screen=True):
-        ui.card_header("Plotly Scatterplot: Species")
+        ui.card_header("Plotly Scatterplot: Species", style="text-align: center;")
 
         @render_plotly
         def plotly_scatterplot():
