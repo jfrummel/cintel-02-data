@@ -1,7 +1,9 @@
 import plotly.express as px
-from shiny.express import input, ui
-from shinywidgets import render_plotly
+from shiny.express import input, ui, render
+from shinywidgets import render_plotly, render_widget
+import pandas as pd
 import palmerpenguins
+import seaborn as sns
 
 penguins_df = palmerpenguins.load_penguins()
 
@@ -23,9 +25,50 @@ with ui.sidebar(position="left", open="open"):
     )
     ui.hr()
     ui.a("Jeremy's GitHub", href="https://github.com/jfrummel/cintel-02-data", target= "_blank")
-ui.page_opts(title="Jeremy's Penguin Histogram", fillable=True)
-with ui.layout_columns():
 
-    @render_plotly
-    def plot1():
-        return px.histogram(px.data.tips(), y="tip")
+#Main Content
+
+ui.page_opts(title="Jeremy's Penguin Histogram", fillable=False)
+with ui.layout_columns():
+    with ui.card(full_screen=True):
+        ui.card_header("Data Table")
+        @render.data_frame
+        def penguins_table():
+            return render.DataTable(penguins_df, selection_mode="row")
+
+    with ui.card(full_screen=True):
+        ui.card_header("Data Grid")
+        @render.data_frame
+        def penguins_grid():
+            return render.DataGrid(penguins_df, filters=False, selection_mode="row")
+
+
+with ui.layout_columns():
+    with ui.card(full_screen=True):
+        ui.card_header("Plotly Histogram")
+        @render_widget  
+        def plot_1():  
+            scatterplot = px.histogram(
+                penguins_df,
+                x="body_mass_g",
+                nbins=input.plotly_bin_count(),
+            ).update_layout(
+                title={"text": "Penguin Mass", "x": 0.5},
+                yaxis_title="Count",
+                xaxis_title="Body Mass (g)",
+            )
+        
+            return scatterplot  
+                
+            
+
+    with ui.card(full_screen=True):
+        ui.card_header("Seaborn Histogram")
+        @render.plot(alt="A Seaborn histogram on penguin body mass in grams.")  
+        def plot_2():  
+            ax = sns.histplot(penguins_df, x="body_mass_g", bins=input.seaborn_bin_count())  
+            ax.set_title("Palmer Penguins")
+            ax.set_xlabel("Mass (g)")
+            ax.set_ylabel("Count")
+            return ax  
+
