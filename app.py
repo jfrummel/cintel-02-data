@@ -14,7 +14,7 @@ with ui.sidebar(position="left", open="open"):
         "Attribute",
         choices=["bill_length_mm", "bill_depth_mm", "flipper_length_mm", "body_mass_g"],
     )
-    ui.input_numeric("plotly_bin_count", "Plotly Count", value=2)
+    ui.input_numeric("plotly_bin_count", "Plotly Count", value=25)
     ui.input_slider("seaborn_bin_count", "Seaborn Bins", 1, 100, 50)
     ui.input_checkbox_group(
         "selected_species_list",
@@ -39,14 +39,14 @@ with ui.layout_columns():
 
         @render.data_frame
         def penguins_table():
-            return render.DataTable(penguins_df, selection_mode="row")
+            return render.DataTable(penguins_df, selection_mode="row", width="300px", height="250px")
 
     with ui.card(full_screen=True):
         ui.card_header("Data Grid")
 
         @render.data_frame
         def penguins_grid():
-            return render.DataGrid(penguins_df, filters=False, selection_mode="row")
+            return render.DataGrid(penguins_df, filters=False, selection_mode="row", width="300px", height="250px")
 
 
 with ui.layout_columns():
@@ -89,6 +89,9 @@ with ui.layout_columns():
         def plotly_scatterplot():
             scatterplot = px.scatter(
                 penguins_df, x="body_mass_g", y="bill_length_mm", color="species"
+            ).update_layout(
+                title={"text": "Bill Length vs Penguin Mass"},
+                yaxis_title="Bill Length (mm)",
+                xaxis_title="Body Mass (g)",
             )
             return scatterplot
-
